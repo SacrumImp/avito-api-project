@@ -1,0 +1,41 @@
+@startuml Avito Service Task
+
+class Users {
+    {static} SERIAL : INT
+    Email : VARCHAR(50), NOT NULL
+    PasswordHash : VARCHAR(50), NOT NULL
+    UserTypeId : SMALLINT, NOT NULL
+}
+
+class UserType {
+    {static} Id : SMALLINT
+    Title: TEXT, UNIQUE, NOT NULL
+}
+
+class House {
+    {static} Id : INT
+    Address : Text, UNIQUE(?), NOT NULL
+    YearOfConstruction : SMALLINT, NOT NULL
+    DeveloperId : SMALLINT, NULLABLE
+    InsertedAt: TIMESTAMPTZ, NOT NULL, DEFAULT VALUE
+    LastFlatAddedAt: TIMESTAMPTZ, NOT NULL, TRIGGER?
+}
+
+class Developer {
+    {static} Id : SMALLINT 
+    Title: TEXT, UNIQUE, NOT NULL
+}
+
+'Для квартиры ключ должен быть составным, по HouseId и Number. При этом поиск по HouseId должен быть быстрым
+class Flat {
+    HouseId: INT, KEY
+    Number : SMALLINT, KEY
+    Price : BIGINT, NOT NULL
+    NumberOfRooms: SMALLINT, NOT NULL
+}
+
+UserType "1" <-- "M" Users 
+Developer "1" <-- "M" House 
+House "1" <-- "1" Flat 
+
+@enduml

@@ -1,0 +1,16 @@
+services: 
+  db: 
+    image: postgres:latest
+    container_name: avito-database
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: FjHJr7142UPU
+      POSTGRES_DB: avitodb
+    volumes: 
+      - ./database/pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - avito_service_network
+
+networks:
+  avito_service_network:
