@@ -1,20 +1,20 @@
 @startuml Avito Service Task
 
-class Users {
-    {static} SERIAL : INT
+class UserAccount {
+    Id : SERIAL PRIMARY KEY
     Email : VARCHAR(50), NOT NULL
     PasswordHash : VARCHAR(50), NOT NULL
     UserTypeId : SMALLINT, NOT NULL
 }
 
 class UserType {
-    {static} Id : SMALLINT
+    Id : SERIAL PRIMARY KEY
     Title: TEXT, UNIQUE, NOT NULL
 }
 
 class House {
-    {static} Id : INT
-    Address : Text, UNIQUE(?), NOT NULL
+    Id : SERIAL PRIMARY KEY
+    Address : Text, UNIQUE, NOT NULL
     YearOfConstruction : SMALLINT, NOT NULL
     DeveloperId : SMALLINT, NULLABLE
     InsertedAt: TIMESTAMPTZ, NOT NULL, DEFAULT VALUE
@@ -34,7 +34,7 @@ class Flat {
     NumberOfRooms: SMALLINT, NOT NULL
 }
 
-UserType "1" <-- "M" Users 
+UserType "1" <-- "M" UserAccount 
 Developer "1" <-- "M" House 
 House "1" <-- "1" Flat 
 
