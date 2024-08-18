@@ -28,10 +28,15 @@ func main() {
 	}
 	defer db.Close()
 
+	authRepo := repositories.NewAuthenticationRepository(db)
+	authService := services.NewAuthenticationService(authRepo)
+	authHandler := handlers.NewAuthenticationHandler(authService)
+
 	flatRepo := repositories.NewFlatRepository(db)
 	flatService := services.NewFlatService(flatRepo)
 	flatHandler := handlers.NewFlatHandler(flatService)
 
+	http.HandleFunc("/dummyLogin", authHandler.GetDummyJWT)
 	http.HandleFunc("/house/", flatHandler.GetByHouseID)
 
 	fmt.Println("API is running on port 8000...")
