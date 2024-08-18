@@ -20,15 +20,32 @@ CREATE TABLE IF NOT EXISTS house (
     address Text UNIQUE NOT NULL,
     year_of_construction SMALLINT NOT NULL,
     developer_id SMALLINT REFERENCES developer(id) ON DELETE CASCADE,
-    inserted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    inserted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_flat_added_at TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS flat (
     house_id INTEGER UNIQUE REFERENCES house(id) ON DELETE CASCADE,
     number SMALLINT,
     price BIGINT NOT NULL,
-    NumberOfRooms SMALLINT NOT NULL,
+    number_of_rooms SMALLINT NOT NULL,
     PRIMARY KEY (house_id, number)
 );
 
 CREATE INDEX idx_flats_by_house ON flat(house_id);
+
+CREATE OR REPLACE FUNCTION update_flat_added_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE house
+    SET last_flat_added_at = NOW()
+    WHERE id = NEW.house_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER after_flat_insert
+AFTER INSERT ON flat
+FOR EACH ROW
+EXECUTE FUNCTION update_flat_added_at();
