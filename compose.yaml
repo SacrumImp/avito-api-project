@@ -11,6 +11,21 @@ services:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - avito_service_network
+  api:
+    container_name: avito-api
+    build: ./api
+    ports:
+      - "8080:8000"
+    networks:
+      - avito_service_network
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: root
+      DB_PASSWORD: FjHJr7142UPU
+      DB_NAME: avitodb
 
 networks:
   avito_service_network:
