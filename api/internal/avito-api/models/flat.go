@@ -13,3 +13,10 @@ type FlatInputObject struct {
 	Price   int `json:"price"`
 	Rooms   int `json:"rooms"`
 }
+
+type FlatUpdateObject struct {
+	HouseId int `json:"house_id"`
+	FlatId  int `json:"id"`
+	Price   int `json:"price"`
+	Rooms   int `json:"rooms"`
+}

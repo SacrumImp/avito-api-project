@@ -8,6 +8,7 @@ import (
 type FlatRepository interface {
 	GetByHouseID(id int) ([]*models.Flat, error)
 	CreateFlat(flat *models.Flat, statusId int) error
+	UpdateFlat(flat *models.Flat) error
 }
 
 type SQLFlatRepository struct {
@@ -54,6 +55,24 @@ func (repo *SQLFlatRepository) CreateFlat(flat *models.Flat, statusId int) error
 		RETURNING number;
 	`
 	if err := repo.DB.QueryRow(query, flat.HouseId, flat.Price, flat.Rooms, statusId).Scan(&flat.FlatId); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *SQLFlatRepository) UpdateFlat(flat *models.Flat) error {
+	query := `
+		WITH updated_flat as (
+			UPDATE flat 
+			SET price = $3, number_of_rooms = $4
+			WHERE house_id = $1 and number = $2
+			RETURNING *
+		)
+		SELECT status.title as status
+		FROM updated_flat
+		JOIN status on updated_flat.status_id = status.id
+	`
+	if err := repo.DB.QueryRow(query, flat.HouseId, flat.FlatId, flat.Price, flat.Rooms).Scan(&flat.Status); err != nil {
 		return err
 	}
 	return nil

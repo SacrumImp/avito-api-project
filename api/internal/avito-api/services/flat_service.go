@@ -41,5 +41,19 @@ func (s *FlatService) CreateFlat(flatInput *models.FlatInputObject) (*models.Fla
 	if err := s.FlatRepo.CreateFlat(flat, status.Id); err != nil {
 		return nil, err
 	}
-	return flat, err
+	return flat, nil
+}
+
+func (s *FlatService) UpdateFlat(flatUpdate *models.FlatUpdateObject) (*models.Flat, error) {
+	flat := &models.Flat{
+		HouseId: flatUpdate.HouseId,
+		FlatId:  flatUpdate.FlatId,
+		Price:   flatUpdate.Price,
+		Rooms:   flatUpdate.Rooms,
+	}
+
+	if err := s.FlatRepo.UpdateFlat(flat); err != nil {
+		return nil, err
+	}
+	return flat, nil
 }

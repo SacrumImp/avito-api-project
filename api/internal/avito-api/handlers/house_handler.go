@@ -24,12 +24,7 @@ func (h *HouseHandler) CreateHouse(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var houseInputObject models.HouseInputObject
-	if err := json.NewDecoder(r.Body).Decode(&houseInputObject); err != nil {
-		http.Error(w, "Невалидные данные ввода", http.StatusBadRequest)
-		return
-	}
-
-	if houseInputObject.Address == "" || houseInputObject.Year <= 0 {
+	if err := json.NewDecoder(r.Body).Decode(&houseInputObject); err != nil || houseInputObject.Address == "" || houseInputObject.Year <= 0 {
 		http.Error(w, "Невалидные данные ввода", http.StatusBadRequest)
 		return
 	}
