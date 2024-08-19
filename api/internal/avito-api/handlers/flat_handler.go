@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"avito-api/internal/avito-api/models"
 	"avito-api/internal/avito-api/services"
 	"encoding/json"
 	"log"
@@ -32,4 +33,33 @@ func (h *FlatHandler) GetByHouseID(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(flats)
+}
+
+func (h *FlatHandler) CreateFlat(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		http.Error(w, "Метод недоступен", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var flatInputObject models.FlatInputObject
+	if err := json.NewDecoder(r.Body).Decode(&flatInputObject); err != nil {
+		http.Error(w, "Невалидные данные ввода", http.StatusBadRequest)
+		return
+	}
+
+	if flatInputObject.HouseId <= 0 || flatInputObject.Price < 0 || flatInputObject.Rooms <= 0 {
+		http.Error(w, "Невалидные данные ввода", http.StatusBadRequest)
+		return
+	}
+
+	flat, err := h.Service.CreateFlat(&flatInputObject)
+	if err != nil {
+		log.Printf("Error inserting flat: %v", err)
+		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(flat)
 }

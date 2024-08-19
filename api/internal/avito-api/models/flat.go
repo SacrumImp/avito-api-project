@@ -7,3 +7,9 @@ type Flat struct {
 	Rooms   int    `json:"rooms"`
 	Status  string `json:"status"`
 }
+
+type FlatInputObject struct {
+	HouseId int `json:"house_id"`
+	Price   int `json:"price"`
+	Rooms   int `json:"rooms"`
+}

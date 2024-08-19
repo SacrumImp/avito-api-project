@@ -33,9 +33,8 @@ func (s *HouseService) CreateHouse(houseInput *models.HouseInputObject) (*models
 		developerId = &developer.Id
 	}
 
-	house, err := s.HouseRepo.CreateHouse(house, developerId)
-	if err != nil {
+	if err := s.HouseRepo.CreateHouse(house, developerId); err != nil {
 		return nil, err
 	}
-	return house, err
+	return house, nil
 }

@@ -7,6 +7,7 @@ import (
 
 type FlatRepository interface {
 	GetByHouseID(id int) ([]*models.Flat, error)
+	CreateFlat(flat *models.Flat, statusId int) error
 }
 
 type SQLFlatRepository struct {
@@ -44,4 +45,16 @@ func (repo *SQLFlatRepository) GetByHouseID(id int) ([]*models.Flat, error) {
 	}
 
 	return flats, nil
+}
+
+func (repo *SQLFlatRepository) CreateFlat(flat *models.Flat, statusId int) error {
+	query := `
+		INSERT INTO flat (house_id, price, number_of_rooms, status_id)
+		VALUES ($1, $2, $3, $4)
+		RETURNING number;
+	`
+	if err := repo.DB.QueryRow(query, flat.HouseId, flat.Price, flat.Rooms, statusId).Scan(&flat.FlatId); err != nil {
+		return err
+	}
+	return nil
 }

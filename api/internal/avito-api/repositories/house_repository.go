@@ -7,7 +7,7 @@ import (
 )
 
 type HouseRepository interface {
-	CreateHouse(house *models.House, developerId *int) (*models.House, error)
+	CreateHouse(house *models.House, developerId *int) error
 }
 
 type SQLHouseRepository struct {
@@ -18,7 +18,7 @@ func NewHouseRepository(db *sql.DB) *SQLHouseRepository {
 	return &SQLHouseRepository{DB: db}
 }
 
-func (repo *SQLHouseRepository) CreateHouse(house *models.House, developerId *int) (*models.House, error) {
+func (repo *SQLHouseRepository) CreateHouse(house *models.House, developerId *int) error {
 	var developerIdParam sql.NullInt32
 	if developerId != nil {
 		developerIdParam = sql.NullInt32{Int32: int32(*developerId), Valid: true}
@@ -34,7 +34,7 @@ func (repo *SQLHouseRepository) CreateHouse(house *models.House, developerId *in
 		RETURNING id, inserted_at, last_flat_added_at;
 	`
 	if err := repo.DB.QueryRow(query, house.Address, house.Year, developerIdParam).Scan(&house.HouseId, &insertedAt, &lastFlatAddedAt); err != nil {
-		return nil, err
+		return err
 	}
 
 	if insertedAt.Valid {
@@ -44,5 +44,5 @@ func (repo *SQLHouseRepository) CreateHouse(house *models.House, developerId *in
 		house.UpdateAt = lastFlatAddedAt.Time.Format(time.RFC3339)
 	}
 
-	return house, nil
+	return nil
 }

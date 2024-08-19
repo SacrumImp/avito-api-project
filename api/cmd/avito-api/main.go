@@ -34,8 +34,10 @@ func main() {
 	authService := services.NewAuthenticationService(authRepo)
 	authHandler := handlers.NewAuthenticationHandler(authService)
 
+	statusRepo := repositories.NewStatusRepository(db)
+
 	flatRepo := repositories.NewFlatRepository(db)
-	flatService := services.NewFlatService(flatRepo)
+	flatService := services.NewFlatService(flatRepo, statusRepo)
 	flatHandler := handlers.NewFlatHandler(flatService)
 
 	houseRepo := repositories.NewHouseRepository(db)
@@ -48,6 +50,10 @@ func main() {
 		middleware.Authenticate(authService,
 			middleware.RequireRole(string(models.Moderator),
 				http.HandlerFunc(houseHandler.CreateHouse))))
+	http.Handle("/flat/create",
+		middleware.Authenticate(authService,
+			http.HandlerFunc(flatHandler.CreateFlat)))
+
 	http.HandleFunc("/house/", flatHandler.GetByHouseID)
 
 	fmt.Println("API is running on port 8000...")
