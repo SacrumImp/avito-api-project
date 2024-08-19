@@ -55,3 +55,20 @@ CREATE TRIGGER after_flat_insert
 AFTER INSERT ON flat
 FOR EACH ROW
 EXECUTE FUNCTION update_flat_added_at();
+
+CREATE OR REPLACE FUNCTION generate_flat_id()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.number := (
+        SELECT COALESCE(MAX(number), 0) + 1
+        FROM flat
+        WHERE house_id = NEW.house_id
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_generate_flat_id
+BEFORE INSERT ON flat
+FOR EACH ROW
+EXECUTE FUNCTION generate_flat_id();
