@@ -2,6 +2,9 @@
 
 Тестовове задание для Avito Backend Bootcamp
 
+![Build Status](https://github.com/SacrumImp/avito-api-project/actions/workflows/ci.yml/badge.svg)
+[![codecov](https://codecov.io/gh/SacrumImp/avito-api-project/branch/main/graph/badge.svg)](https://codecov.io/gh/<your-username>/<your-repo>)
+
 ## Запуск
 
 Запуск осуществляется при помощи docker-compose

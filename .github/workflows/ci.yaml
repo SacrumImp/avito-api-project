@@ -1,0 +1,59 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: FjHJr7142UPU
+          POSTGRES_DB: avitodb
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.22
+
+    - name: Build Docker images
+      run: docker-compose build
+
+    - name: Run tests
+      run: docker-compose run --rm avito-api go test -v ./...
+
+    - name: Generate coverage report
+      run: |
+        mkdir -p coverage
+        docker-compose run --rm avito-api go test -coverprofile=coverage/coverage.out ./...
+        docker-compose run --rm avito-api go tool cover -html=coverage/coverage.out -o coverage/coverage.html
+      continue-on-error: true
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: coverage/coverage.out
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage/coverage.out
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
