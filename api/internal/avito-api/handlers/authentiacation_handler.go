@@ -19,7 +19,7 @@ func NewAuthenticationHandler(service *services.AuthenticationService) *Authenti
 func (h *AuthenticationHandler) GetDummyJWT(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", http.MethodGet)
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Метод недоступен", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -30,13 +30,13 @@ func (h *AuthenticationHandler) GetDummyJWT(w http.ResponseWriter, r *http.Reque
 		token, err := h.Service.GetDummyJWT(models.UserTypesEnum(userType))
 		if err != nil {
 			log.Printf("Error getting jwt for dummyLogin: %v", err)
-			http.Error(w, "Failed to generate JWT", http.StatusInternalServerError)
+			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(token)
 	default:
-		http.Error(w, "An invalid role has been used", http.StatusBadRequest)
+		http.Error(w, "Невалидные данные ввода", http.StatusBadRequest)
 		return
 	}
 
