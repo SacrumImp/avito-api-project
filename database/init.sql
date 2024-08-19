@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS user_type (
 CREATE TABLE IF NOT EXISTS user_account (
     id SERIAL PRIMARY KEY,
     email VARCHAR(254) NOT NULL,
-    password_hash VARCHAR(50) NOT NULL,
+    password_hash VARCHAR(60) NOT NULL,
     user_type_id INTEGER NOT NULL REFERENCES user_type(id) ON DELETE CASCADE
 );
 

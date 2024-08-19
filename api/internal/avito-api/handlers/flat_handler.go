@@ -24,12 +24,7 @@ func (h *FlatHandler) CreateFlat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var flatInputObject models.FlatInputObject
-	if err := json.NewDecoder(r.Body).Decode(&flatInputObject); err != nil {
-		http.Error(w, "Невалидные данные ввода", http.StatusBadRequest)
-		return
-	}
-
-	if flatInputObject.HouseId <= 0 || flatInputObject.Price < 0 || flatInputObject.Rooms <= 0 {
+	if err := json.NewDecoder(r.Body).Decode(&flatInputObject); err != nil || flatInputObject.HouseId <= 0 || flatInputObject.Price < 0 || flatInputObject.Rooms <= 0 {
 		http.Error(w, "Невалидные данные ввода", http.StatusBadRequest)
 		return
 	}

@@ -6,3 +6,8 @@ const (
 	Client    UserTypesEnum = "client"
 	Moderator UserTypesEnum = "moderator"
 )
+
+type UserType struct {
+	Id    int
+	Title string
+}

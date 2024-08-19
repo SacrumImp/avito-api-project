@@ -7,7 +7,7 @@ import (
 
 func RequireRoles(allowedRoles []string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		claims, ok := r.Context().Value(models.User).(*models.Claim)
+		claims, ok := r.Context().Value(models.UserKey).(*models.Claim)
 		if !ok {
 			http.Error(w, "Отсутствует доступ", http.StatusForbidden)
 			return

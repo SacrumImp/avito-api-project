@@ -61,7 +61,7 @@ func (h *HouseHandler) GetFlatsByHouseID(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	claims, _ := r.Context().Value(models.User).(*models.Claim)
+	claims, _ := r.Context().Value(models.UserKey).(*models.Claim)
 	filteredFlats, err := h.FlatService.FilterByRole(flats, claims.Role)
 	if err != nil {
 		log.Printf("Error filtering flats: %v", err)

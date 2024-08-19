@@ -23,7 +23,7 @@ func Authenticate(authService *services.AuthenticationService, next http.Handler
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), models.User, claims)
+		ctx := context.WithValue(r.Context(), models.UserKey, claims)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

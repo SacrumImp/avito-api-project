@@ -31,14 +31,15 @@ func main() {
 	defer db.Close()
 
 	// Repositories
-	authRepo := repositories.NewAuthenticationRepository(db)
+	userAccountRepo := repositories.NewUserAccountRepository(db)
 	statusRepo := repositories.NewStatusRepository(db)
 	houseRepo := repositories.NewHouseRepository(db)
 	developerRepo := repositories.NewDeveloperRepository(db)
 	flatRepo := repositories.NewFlatRepository(db)
+	userTypeRepo := repositories.NewUserTypeRepository(db)
 
 	// Services
-	authService := services.NewAuthenticationService(authRepo)
+	authService := services.NewAuthenticationService(userAccountRepo, userTypeRepo)
 	flatService := services.NewFlatService(flatRepo, statusRepo)
 	houseService := services.NewHouseService(houseRepo, developerRepo)
 
@@ -48,6 +49,7 @@ func main() {
 	houseHandler := handlers.NewHouseHandler(houseService, flatService)
 
 	http.HandleFunc("/dummyLogin", authHandler.GetDummyJWT)
+	http.HandleFunc("/register", authHandler.RegisterUser)
 	http.Handle("/house/create",
 		middleware.Authenticate(authService,
 			middleware.RequireRoles([]string{string(models.Moderator)},

@@ -3,5 +3,5 @@ package models
 type ContextKey string
 
 const (
-	User ContextKey = "user"
+	UserKey ContextKey = "user"
 )

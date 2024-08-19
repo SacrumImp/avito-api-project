@@ -20,10 +20,10 @@ func NewDeveloperRepository(db *sql.DB) *SQLDeveloperRepository {
 func (repo *SQLDeveloperRepository) GetDeveloperByTitle(title string) (*models.Developer, error) {
 	developer := &models.Developer{}
 
-	queryDeveloper := `
+	query := `
 		SELECT Id, Title FROM developer where Title = $1
 	`
-	if err := repo.DB.QueryRow(queryDeveloper, title).Scan(&developer.Id, &developer.Title); err != nil {
+	if err := repo.DB.QueryRow(query, title).Scan(&developer.Id, &developer.Title); err != nil {
 		return nil, err
 	}
 	return developer, nil
