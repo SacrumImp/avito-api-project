@@ -30,35 +30,39 @@ func main() {
 	}
 	defer db.Close()
 
+	// Repositories
 	authRepo := repositories.NewAuthenticationRepository(db)
-	authService := services.NewAuthenticationService(authRepo)
-	authHandler := handlers.NewAuthenticationHandler(authService)
-
 	statusRepo := repositories.NewStatusRepository(db)
-
-	flatRepo := repositories.NewFlatRepository(db)
-	flatService := services.NewFlatService(flatRepo, statusRepo)
-	flatHandler := handlers.NewFlatHandler(flatService)
-
 	houseRepo := repositories.NewHouseRepository(db)
 	developerRepo := repositories.NewDeveloperRepository(db)
+	flatRepo := repositories.NewFlatRepository(db)
+
+	// Services
+	authService := services.NewAuthenticationService(authRepo)
+	flatService := services.NewFlatService(flatRepo, statusRepo)
 	houseService := services.NewHouseService(houseRepo, developerRepo)
-	houseHandler := handlers.NewHouseHandler(houseService)
+
+	// Handlers
+	authHandler := handlers.NewAuthenticationHandler(authService)
+	flatHandler := handlers.NewFlatHandler(flatService)
+	houseHandler := handlers.NewHouseHandler(houseService, flatService)
 
 	http.HandleFunc("/dummyLogin", authHandler.GetDummyJWT)
 	http.Handle("/house/create",
 		middleware.Authenticate(authService,
-			middleware.RequireRole(string(models.Moderator),
+			middleware.RequireRoles([]string{string(models.Moderator)},
 				http.HandlerFunc(houseHandler.CreateHouse))))
 	http.Handle("/flat/create",
 		middleware.Authenticate(authService,
 			http.HandlerFunc(flatHandler.CreateFlat)))
 	http.Handle("/flat/update",
 		middleware.Authenticate(authService,
-			middleware.RequireRole(string(models.Moderator),
+			middleware.RequireRoles([]string{string(models.Moderator)},
 				http.HandlerFunc(flatHandler.UpdateFlatStatus))))
-
-	http.HandleFunc("/house/", flatHandler.GetByHouseID)
+	http.Handle("/house/",
+		middleware.Authenticate(authService,
+			middleware.RequireRoles([]string{string(models.Moderator), string(models.Client)},
+				http.HandlerFunc(houseHandler.GetFlatsByHouseID))))
 
 	fmt.Println("API is running on port 8000...")
 	log.Fatal(http.ListenAndServe(":8000", nil))

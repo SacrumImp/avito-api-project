@@ -5,13 +5,21 @@ import (
 	"net/http"
 )
 
-func RequireRole(role string, next http.Handler) http.Handler {
+func RequireRoles(allowedRoles []string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		claims, ok := r.Context().Value(models.User).(*models.Claim)
-		if !ok || claims.Role != role {
+		if !ok {
 			http.Error(w, "Отсутствует доступ", http.StatusForbidden)
 			return
 		}
-		next.ServeHTTP(w, r)
+
+		for _, role := range allowedRoles {
+			if claims.Role != role {
+				next.ServeHTTP(w, r)
+				return
+			}
+		}
+
+		http.Error(w, "Отсутствует доступ", http.StatusForbidden)
 	})
 }

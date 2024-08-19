@@ -3,7 +3,8 @@ package models
 type StatusesEnum = string
 
 const (
-	Created StatusesEnum = "created"
+	Created  StatusesEnum = "created"
+	Approved StatusesEnum = "approved"
 )
 
 type Status struct {

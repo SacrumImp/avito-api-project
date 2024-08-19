@@ -6,14 +6,20 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 type HouseHandler struct {
-	Service *services.HouseService
+	HouseService *services.HouseService
+	FlatService  *services.FlatService
 }
 
-func NewHouseHandler(service *services.HouseService) *HouseHandler {
-	return &HouseHandler{Service: service}
+func NewHouseHandler(houseService *services.HouseService, flatService *services.FlatService) *HouseHandler {
+	return &HouseHandler{
+		HouseService: houseService,
+		FlatService:  flatService,
+	}
 }
 
 func (h *HouseHandler) CreateHouse(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +35,7 @@ func (h *HouseHandler) CreateHouse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	house, err := h.Service.CreateHouse(&houseInputObject)
+	house, err := h.HouseService.CreateHouse(&houseInputObject)
 	if err != nil {
 		log.Printf("Error inserting house: %v", err)
 		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
@@ -38,4 +44,31 @@ func (h *HouseHandler) CreateHouse(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(house)
+}
+
+func (h *HouseHandler) GetFlatsByHouseID(w http.ResponseWriter, r *http.Request) {
+	idStr := strings.TrimPrefix(r.URL.Path, "/house/")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Невалидные данные ввода", http.StatusBadRequest)
+		return
+	}
+
+	flats, err := h.FlatService.GetByHouseID(id)
+	if err != nil {
+		log.Printf("Error getting flats: %v", err)
+		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
+		return
+	}
+
+	claims, _ := r.Context().Value(models.User).(*models.Claim)
+	filteredFlats, err := h.FlatService.FilterByRole(flats, claims.Role)
+	if err != nil {
+		log.Printf("Error filtering flats: %v", err)
+		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(filteredFlats)
 }

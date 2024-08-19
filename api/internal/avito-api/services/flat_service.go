@@ -59,3 +59,18 @@ func (s *FlatService) UpdateFlatStatus(flatUpdate *models.FlatUpdateObject) (*mo
 	}
 	return flat, nil
 }
+
+func (s *FlatService) FilterByRole(flats []*models.Flat, role string) ([]*models.Flat, error) {
+
+	if role == string(models.Moderator) {
+		return flats, nil
+	}
+
+	filteredFlats := []*models.Flat{}
+	for _, flat := range flats {
+		if flat.Status == models.Approved {
+			filteredFlats = append(filteredFlats, flat)
+		}
+	}
+	return filteredFlats, nil
+}

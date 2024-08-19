@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
-	"strings"
 )
 
 type FlatHandler struct {
@@ -16,23 +14,6 @@ type FlatHandler struct {
 
 func NewFlatHandler(service *services.FlatService) *FlatHandler {
 	return &FlatHandler{Service: service}
-}
-
-func (h *FlatHandler) GetByHouseID(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/house/")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "Невалидные данные ввода", http.StatusBadRequest)
-		return
-	}
-	flats, err := h.Service.GetByHouseID(id)
-	if err != nil {
-		log.Printf("Error getting flats: %v", err)
-		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(flats)
 }
 
 func (h *FlatHandler) CreateFlat(w http.ResponseWriter, r *http.Request) {
