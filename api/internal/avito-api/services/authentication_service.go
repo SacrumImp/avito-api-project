@@ -46,3 +46,14 @@ func (s *AuthenticationService) GetDummyJWT(userType models.UserTypesEnum) (*mod
 	}
 	return token, nil
 }
+
+func (s *AuthenticationService) DecodeJWT(tokenStr string) (*models.Claim, error) {
+	claims := &models.Claim{}
+	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+	if err != nil || !token.Valid {
+		return nil, err
+	}
+	return claims, nil
+}

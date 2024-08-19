@@ -2,6 +2,8 @@ package main
 
 import (
 	"avito-api/internal/avito-api/handlers"
+	"avito-api/internal/avito-api/middleware"
+	"avito-api/internal/avito-api/models"
 	"avito-api/internal/avito-api/repositories"
 	"avito-api/internal/avito-api/services"
 	"database/sql"
@@ -36,7 +38,16 @@ func main() {
 	flatService := services.NewFlatService(flatRepo)
 	flatHandler := handlers.NewFlatHandler(flatService)
 
+	houseRepo := repositories.NewHouseRepository(db)
+	developerRepo := repositories.NewDeveloperRepository(db)
+	houseService := services.NewHouseService(houseRepo, developerRepo)
+	houseHandler := handlers.NewHouseHandler(houseService)
+
 	http.HandleFunc("/dummyLogin", authHandler.GetDummyJWT)
+	http.Handle("/house/create",
+		middleware.Authenticate(authService,
+			middleware.RequireRole(string(models.Moderator),
+				http.HandlerFunc(houseHandler.CreateHouse))))
 	http.HandleFunc("/house/", flatHandler.GetByHouseID)
 
 	fmt.Println("API is running on port 8000...")

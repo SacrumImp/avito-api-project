@@ -8,3 +8,9 @@ type House struct {
 	CreatedAt string `json:"created_at"`
 	UpdateAt  string `json:"update_at"`
 }
+
+type HouseInputObject struct {
+	Address   string `json:"address"`
+	Year      int    `json:"year"`
+	Developer string `json:"developer"`
+}
