@@ -7,12 +7,17 @@ type UserRegisterObject struct {
 }
 
 type UserLogin struct {
-	UserId string `json:"user_id"`
+	UserId int `json:"user_id"`
 }
 
 type UserAccount struct {
-	UserId       string
+	UserId       int
 	Email        string
 	PasswordHash string
 	UserType     string
+}
+
+type UserLoginObject struct {
+	UserId   int    `json:"id"`
+	Password string `json:"password"`
 }

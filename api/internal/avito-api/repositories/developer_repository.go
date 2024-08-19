@@ -21,7 +21,7 @@ func (repo *SQLDeveloperRepository) GetDeveloperByTitle(title string) (*models.D
 	developer := &models.Developer{}
 
 	query := `
-		SELECT Id, Title FROM developer where Title = $1
+		SELECT Id, Title FROM developer where Title = $1;
 	`
 	if err := repo.DB.QueryRow(query, title).Scan(&developer.Id, &developer.Title); err != nil {
 		return nil, err

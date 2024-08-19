@@ -50,6 +50,7 @@ func main() {
 
 	http.HandleFunc("/dummyLogin", authHandler.GetDummyJWT)
 	http.HandleFunc("/register", authHandler.RegisterUser)
+	http.HandleFunc("/login", authHandler.LoginUser)
 	http.Handle("/house/create",
 		middleware.Authenticate(authService,
 			middleware.RequireRoles([]string{string(models.Moderator)},

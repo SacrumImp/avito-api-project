@@ -59,7 +59,7 @@ func (repo *SQLFlatRepository) CreateFlat(flat *models.Flat, statusId int) error
 			inserted_flat.number as number,
 			status.Title as status
 		FROM inserted_flat
-		JOIN status on inserted_flat.status_id = status.id
+		JOIN status on inserted_flat.status_id = status.id;
 	`
 	if err := repo.DB.QueryRow(query, flat.HouseId, flat.Price, flat.Rooms, statusId).Scan(&flat.FlatId, &flat.Status); err != nil {
 		return err
@@ -80,7 +80,7 @@ func (repo *SQLFlatRepository) UpdateFlatStatus(flat *models.Flat, statusId int)
 			updated_flat.number_of_rooms as rooms,
 			status.Title as status
 		FROM updated_flat
-		JOIN status on updated_flat.status_id = status.id
+		JOIN status on updated_flat.status_id = status.id;
 	`
 	if err := repo.DB.QueryRow(query, flat.HouseId, flat.FlatId, statusId).Scan(&flat.Price, &flat.Rooms, &flat.Status); err != nil {
 		return err

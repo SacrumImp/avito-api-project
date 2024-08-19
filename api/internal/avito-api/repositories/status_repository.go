@@ -21,7 +21,7 @@ func (repo *SQLStatusRepository) GetStatusByTitle(title string) (*models.Status,
 	status := &models.Status{}
 
 	query := `
-		SELECT Id, Title FROM status where Title = $1
+		SELECT Id, Title FROM status where Title = $1;
 	`
 	if err := repo.DB.QueryRow(query, title).Scan(&status.Id, &status.Title); err != nil {
 		return nil, err

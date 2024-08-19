@@ -21,7 +21,7 @@ func (repo *SQLUserTypeRepository) GetUserTypeByTitle(title string) (*models.Use
 	userType := &models.UserType{}
 
 	query := `
-		SELECT Id, Title FROM user_type where Title = $1
+		SELECT Id, Title FROM user_type where Title = $1;
 	`
 	if err := repo.DB.QueryRow(query, title).Scan(&userType.Id, &userType.Title); err != nil {
 		return nil, err

@@ -65,3 +65,27 @@ func (h *AuthenticationHandler) RegisterUser(w http.ResponseWriter, r *http.Requ
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(userLogin)
 }
+
+func (h *AuthenticationHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		http.Error(w, "Метод недоступен", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var userLogin models.UserLoginObject
+	if err := json.NewDecoder(r.Body).Decode(&userLogin); err != nil || userLogin.UserId <= 0 || userLogin.Password == "" {
+		http.Error(w, "Невалидные данные ввода", http.StatusBadRequest)
+		return
+	}
+
+	token, err := h.Service.LoginUser(&userLogin)
+	if err != nil {
+		log.Printf("Error authentication user: %v", err)
+		http.Error(w, "Пользователь не найден", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(token)
+}

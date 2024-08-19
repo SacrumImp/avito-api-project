@@ -49,6 +49,10 @@ func hashPassword(password string) (string, error) {
 	return string(hashedBytes), nil
 }
 
+func checkPasswordHash(hash, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+}
+
 func (s *AuthenticationService) GetDummyJWT(userType models.UserTypesEnum) (*models.Token, error) {
 	tokenString, err := generateJWT(string(userType))
 	if err != nil {
@@ -96,4 +100,28 @@ func (s *AuthenticationService) CreateUser(registerUser *models.UserRegisterObje
 	}
 
 	return userLogin, nil
+}
+
+func (s *AuthenticationService) LoginUser(userLogin *models.UserLoginObject) (*models.Token, error) {
+	userAccount := &models.UserAccount{
+		UserId: userLogin.UserId,
+	}
+
+	if err := s.UserAccountRepo.FindUserAccount(userAccount); err != nil {
+		return nil, err
+	}
+
+	if err := checkPasswordHash(userAccount.PasswordHash, userLogin.Password); err != nil {
+		return nil, err
+	}
+
+	tokenString, err := generateJWT(userAccount.UserType)
+	if err != nil {
+		return nil, err
+	}
+	token := &models.Token{
+		Token: tokenString,
+	}
+
+	return token, nil
 }
