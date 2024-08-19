@@ -3,6 +3,7 @@ package services
 import (
 	"avito-api/internal/avito-api/models"
 	"avito-api/internal/avito-api/repositories"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -24,6 +25,10 @@ func NewAuthenticationService(userAccountRepo repositories.UserAccountRepository
 var jwtKey = []byte("0b79d3d683a9f2eee06fafc2358aa25aa477c2339a63ae46e7b7092892f7eef9")
 
 func generateJWT(role string) (string, error) {
+	if len(jwtKey) == 0 {
+		return "", fmt.Errorf("invalid signing key")
+	}
+
 	expirationTime := time.Now().Add(8 * time.Hour)
 
 	claims := &models.Claim{

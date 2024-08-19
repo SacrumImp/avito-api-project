@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine as builder
+FROM golang:1.22 as builder
 
 WORKDIR /app
 
@@ -8,13 +8,11 @@ RUN go mod download
 
 COPY . .
 
+RUN go test -coverprofile=coverage.out ./...
+
+RUN mkdir -p coverage
+
 RUN go build -o /api ./cmd/avito-api
-
-FROM alpine:3.18
-
-WORKDIR /app
-
-COPY --from=builder /api .
 
 EXPOSE 8000
 

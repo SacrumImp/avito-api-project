@@ -26,34 +26,30 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: 1.22
+    - name: Install Docker Compose
+      run: sudo apt-get install docker-compose
 
     - name: Build Docker images
       run: docker-compose build
 
-    - name: Run tests
-      run: docker-compose run --rm avito-api go test -v ./...
-
-    - name: Generate coverage report
+    - name: Run tests and generate coverage report
       run: |
-        mkdir -p coverage
-        docker-compose run --rm avito-api go test -coverprofile=coverage/coverage.out ./...
-        docker-compose run --rm avito-api go tool cover -html=coverage/coverage.out -o coverage/coverage.html
-      continue-on-error: true
+        docker-compose up -d db  # Start database
+        docker-compose run --name api_test_run api sh -c "go test -coverprofile=coverage.out ./..."
+        docker cp api_test_run:/app/coverage.out ./coverage.out
+        docker-compose down
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v3
       with:
         name: coverage-report
-        path: coverage/coverage.out
+        path: coverage.out
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
-        files: ./coverage/coverage.out
+        files: ./coverage.out
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}
