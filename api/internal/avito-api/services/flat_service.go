@@ -30,7 +30,6 @@ func (s *FlatService) CreateFlat(flatInput *models.FlatInputObject) (*models.Fla
 		HouseId: flatInput.HouseId,
 		Price:   flatInput.Price,
 		Rooms:   flatInput.Rooms,
-		Status:  models.Created,
 	}
 
 	status, err := s.StatusRepo.GetStatusByTitle(models.Created)
@@ -44,15 +43,18 @@ func (s *FlatService) CreateFlat(flatInput *models.FlatInputObject) (*models.Fla
 	return flat, nil
 }
 
-func (s *FlatService) UpdateFlat(flatUpdate *models.FlatUpdateObject) (*models.Flat, error) {
+func (s *FlatService) UpdateFlatStatus(flatUpdate *models.FlatUpdateObject) (*models.Flat, error) {
 	flat := &models.Flat{
 		HouseId: flatUpdate.HouseId,
 		FlatId:  flatUpdate.FlatId,
-		Price:   flatUpdate.Price,
-		Rooms:   flatUpdate.Rooms,
 	}
 
-	if err := s.FlatRepo.UpdateFlat(flat); err != nil {
+	status, err := s.StatusRepo.GetStatusByTitle(flatUpdate.Status)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.FlatRepo.UpdateFlatStatus(flat, status.Id); err != nil {
 		return nil, err
 	}
 	return flat, nil

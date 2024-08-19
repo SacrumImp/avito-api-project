@@ -8,7 +8,7 @@ import (
 type FlatRepository interface {
 	GetByHouseID(id int) ([]*models.Flat, error)
 	CreateFlat(flat *models.Flat, statusId int) error
-	UpdateFlat(flat *models.Flat) error
+	UpdateFlatStatus(flat *models.Flat, statusId int) error
 }
 
 type SQLFlatRepository struct {
@@ -50,29 +50,39 @@ func (repo *SQLFlatRepository) GetByHouseID(id int) ([]*models.Flat, error) {
 
 func (repo *SQLFlatRepository) CreateFlat(flat *models.Flat, statusId int) error {
 	query := `
-		INSERT INTO flat (house_id, price, number_of_rooms, status_id)
-		VALUES ($1, $2, $3, $4)
-		RETURNING number;
+		WITH inserted_flat as (
+			INSERT INTO flat (house_id, price, number_of_rooms, status_id)
+			VALUES ($1, $2, $3, $4)
+			RETURNING *
+		)
+		SELECT 
+			inserted_flat.number as number,
+			status.Title as status
+		FROM inserted_flat
+		JOIN status on inserted_flat.status_id = status.id
 	`
-	if err := repo.DB.QueryRow(query, flat.HouseId, flat.Price, flat.Rooms, statusId).Scan(&flat.FlatId); err != nil {
+	if err := repo.DB.QueryRow(query, flat.HouseId, flat.Price, flat.Rooms, statusId).Scan(&flat.FlatId, &flat.Status); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (repo *SQLFlatRepository) UpdateFlat(flat *models.Flat) error {
+func (repo *SQLFlatRepository) UpdateFlatStatus(flat *models.Flat, statusId int) error {
 	query := `
 		WITH updated_flat as (
 			UPDATE flat 
-			SET price = $3, number_of_rooms = $4
+			SET status_id = $3
 			WHERE house_id = $1 and number = $2
 			RETURNING *
 		)
-		SELECT status.title as status
+		SELECT 
+			updated_flat.price as price,
+			updated_flat.number_of_rooms as rooms,
+			status.Title as status
 		FROM updated_flat
 		JOIN status on updated_flat.status_id = status.id
 	`
-	if err := repo.DB.QueryRow(query, flat.HouseId, flat.FlatId, flat.Price, flat.Rooms).Scan(&flat.Status); err != nil {
+	if err := repo.DB.QueryRow(query, flat.HouseId, flat.FlatId, statusId).Scan(&flat.Price, &flat.Rooms, &flat.Status); err != nil {
 		return err
 	}
 	return nil

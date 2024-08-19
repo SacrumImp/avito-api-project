@@ -56,7 +56,7 @@ func main() {
 	http.Handle("/flat/update",
 		middleware.Authenticate(authService,
 			middleware.RequireRole(string(models.Moderator),
-				http.HandlerFunc(flatHandler.UpdateFlat))))
+				http.HandlerFunc(flatHandler.UpdateFlatStatus))))
 
 	http.HandleFunc("/house/", flatHandler.GetByHouseID)
 

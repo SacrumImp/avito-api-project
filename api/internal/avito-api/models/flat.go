@@ -15,8 +15,7 @@ type FlatInputObject struct {
 }
 
 type FlatUpdateObject struct {
-	HouseId int `json:"house_id"`
-	FlatId  int `json:"id"`
-	Price   int `json:"price"`
-	Rooms   int `json:"rooms"`
+	HouseId int    `json:"house_id"`
+	FlatId  int    `json:"id"`
+	Status  string `json:"status"`
 }

@@ -64,7 +64,7 @@ func (h *FlatHandler) CreateFlat(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(flat)
 }
 
-func (h *FlatHandler) UpdateFlat(w http.ResponseWriter, r *http.Request) {
+func (h *FlatHandler) UpdateFlatStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
 		http.Error(w, "Метод недоступен", http.StatusMethodNotAllowed)
@@ -72,12 +72,12 @@ func (h *FlatHandler) UpdateFlat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var flatUpdateObject models.FlatUpdateObject
-	if err := json.NewDecoder(r.Body).Decode(&flatUpdateObject); err != nil || flatUpdateObject.HouseId <= 0 || flatUpdateObject.FlatId <= 0 || flatUpdateObject.Price < 0 || flatUpdateObject.Rooms <= 0 {
+	if err := json.NewDecoder(r.Body).Decode(&flatUpdateObject); err != nil || flatUpdateObject.HouseId <= 0 || flatUpdateObject.FlatId <= 0 || flatUpdateObject.Status == "" {
 		http.Error(w, "Невалидные данные ввода", http.StatusBadRequest)
 		return
 	}
 
-	flat, err := h.Service.UpdateFlat(&flatUpdateObject)
+	flat, err := h.Service.UpdateFlatStatus(&flatUpdateObject)
 	if err != nil {
 		log.Printf("Error updating flat: %v", err)
 		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
